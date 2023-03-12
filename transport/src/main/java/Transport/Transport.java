@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class Transport {
+public abstract class Transport {
 
     private String brand;
     private String model;
@@ -14,6 +14,8 @@ public class Transport {
     private String countryOfOrigin;
     String color;
     int maxSpeed;
+    boolean fullTank = false;
+
 
     public Transport(String brand, String model, int releaseDate, String countryOfOrigin, String color, int maxSpeed) {
         if (brand == null || brand.isEmpty()) {
@@ -43,6 +45,15 @@ public class Transport {
         this.maxSpeed = maxSpeed;
     }
 
+    public Transport(String model, int releaseDate, String countryOfOrigin, int maxSpeed) {
+        this.model = model;
+        this.releaseDate = releaseDate;
+        this.countryOfOrigin = countryOfOrigin;
+        this.maxSpeed = maxSpeed;
+    }
+
+    abstract void refill();
+
     public void setColor(String color) {
         this.color = color;
     }
@@ -54,5 +65,12 @@ public class Transport {
     public String toString() {
         return "\n" + brand + " " + model + ", год выпуска " + releaseDate + " страна производства " + countryOfOrigin +
                 ", цвет " + color + "\n"+ "=".repeat(84);
+    }
+    public String isFullTank() {
+        String full = ("\033[91mУ " +model+" пустой бак\033[0m");
+        if (fullTank){
+            full = ("\033[92mУ "+model +" полный бак\033[0m");
+        }
+        return full;
     }
 }

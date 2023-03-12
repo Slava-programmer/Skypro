@@ -86,7 +86,6 @@ public class Car extends Transport {
     }
 
     public void checkPoliceValidData() {
-
         if (getInsurance() == null) {
             System.out.println(getBrand() + " " + getModel() + " - " + "машина не застрахована, хотите приобресть страховочку недорого?");
         } else if (LocalDate.now().isAfter(getInsuranceValidDate())) {
@@ -94,6 +93,12 @@ public class Car extends Transport {
         } else {
             System.out.println(getBrand() + " " + getModel() + " - " + "Страховка действительна до " + getInsuranceValidDate().format((DateTimeFormatter.ofPattern("dd.MM.yyyyг."))));
         }
+    }
+
+    @Override
+    public void refill() {
+        fullTank = true;
+        System.out.println("Объекты класса car можно заправлять бензином, дизелем на заправке или заряжать\nна специальных электроду-парковках, если это электрокар.\n"+getModel() +" заправлен");
     }
 
     @Override
@@ -156,7 +161,4 @@ public class Car extends Transport {
             return validityPeriod;
         }
     }
-
-
-
 }

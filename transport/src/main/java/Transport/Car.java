@@ -1,6 +1,5 @@
 package Transport;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,13 +9,11 @@ import java.util.Scanner;
 
 @Getter
 @Setter
-public class Car {
+public class Car extends Transport {
 
-    private String brand;
-    private String model;
+
     float engineCapacity;
-    String color;
-    private int releaseDate;
+
     private String countryOfOrigin;
 
     //new fields
@@ -28,26 +25,13 @@ public class Car {
     Insurance insurance;
 
     public Car(String brand, String model, float engineCapacity, String color, int releaseDate, String countryOfOrigin,
-               String gearbox, String bodyType, String registrationNumber, int numberOfSeats, String tireType) {
+               String gearbox, String bodyType, String registrationNumber, int numberOfSeats, String tireType, int maxSpeed) {
+        super(brand, model, releaseDate, countryOfOrigin, color, maxSpeed);
 
-        if (brand == null || brand.isEmpty()) {
-            brand = "default";
-        }
-        if (model == null || model.isEmpty()) {
-            model = "default";
-        }
-        if (countryOfOrigin == null || countryOfOrigin.isEmpty()) {
-            countryOfOrigin = "default";
-        }
         if (engineCapacity == 0) {
             engineCapacity = 1.5F;
         }
-        if (color == null || color.isEmpty()) {
-            color = "белый";
-        }
-        if (releaseDate == 0) {
-            releaseDate = 2000;
-        }
+
         if (gearbox == null || gearbox.isEmpty()) {
             gearbox = "АККП";
         }
@@ -65,12 +49,8 @@ public class Car {
         if (tireType == null || tireType.isEmpty()) {
             tireType = "Летние";
         }
-        this.brand = brand;
-        this.model = model;
+
         this.engineCapacity = engineCapacity;
-        this.color = color;
-        this.releaseDate = releaseDate;
-        this.countryOfOrigin = countryOfOrigin;
         this.gearbox = gearbox;
         this.bodyType = bodyType;
         this.registrationNumber = registrationNumber;
@@ -78,6 +58,7 @@ public class Car {
         this.numberOfSeats = numberOfSeats;
 
     }
+
     public String getInsuranceNumber() {
         return insurance.numberPolice;
     }
@@ -86,18 +67,13 @@ public class Car {
         return insurance.costPolice;
     }
 
-    public String getInsuranceValidDate() {
-        return insurance.validityPeriod.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+    public LocalDate getInsuranceValidDate() {
+        return insurance.validityPeriod();
     }
 
-    @Override
-    public String toString() {
-        return "\n" + brand + " " + model + ", год выпуска " + releaseDate + " страна производства " + countryOfOrigin +
-                ", цвет " + color + "\nобъём двигателя " + engineCapacity +
-                ", коробка передач " + gearbox + ", тип кузова " + bodyType + ", количество мест " + numberOfSeats +
-                "\nгосномер " + registrationNumber + ", шины " + tireType + "\n" + "=".repeat(84);
+    public void setInsurance(Insurance insurance) {
+        this.insurance = insurance;
     }
-
 
     public String setRegistrationNumberManually() {
         Scanner scanner = new Scanner(System.in);
@@ -110,15 +86,21 @@ public class Car {
     }
 
     public void checkPoliceValidData() {
-        if (insurance == null) {
-            System.out.println(brand + " " + model + " - " + "машина не застрахована, хотите приобресть страховочку недорого?");
-        } else if (LocalDate.now().isAfter(insurance.validityPeriod)) {
-            System.out.println("\033[91mСтраховка (гос.номер " + registrationNumber + ", полис № " + insurance.numberPolice + ") просрочена!\033[0m");
+
+        if (getInsurance() == null) {
+            System.out.println(getBrand() + " " + getModel() + " - " + "машина не застрахована, хотите приобресть страховочку недорого?");
+        } else if (LocalDate.now().isAfter(getInsuranceValidDate())) {
+            System.out.println("\033[91mСтраховка (гос.номер " + getRegistrationNumber() + ", полис № " + getInsuranceNumber() + ") просрочена!\033[0m");
         } else {
-            System.out.println(brand + " " + model + " - " + "Страховка действительна до " + insurance.validityPeriod.format(DateTimeFormatter.ofPattern("dd.MM.yyyyг.")));
+            System.out.println(getBrand() + " " + getModel() + " - " + "Страховка действительна до " + getInsuranceValidDate().format((DateTimeFormatter.ofPattern("dd.MM.yyyyг."))));
         }
     }
 
+    @Override
+    public String toString() {
+        return "\n" + getBrand() + " " + getModel() + ", год выпуска " + getReleaseDate() + " страна производства " + countryOfOrigin +
+                ", цвет " + color + "\nДвигатель "+ engineCapacity+"\nКоробка передач "+gearbox+"\nГосномер "+registrationNumber+"\nШины " +tireType + "\n"+"=".repeat(84);
+    }
 
     public void changeTyres() {
         if (tireType.equals("Летние")) {
@@ -137,14 +119,44 @@ public class Car {
     }
 
     public Insurance insureCar(LocalDate validityPeriod, int costPolice, String numberPolice) {
-        Insurance insurance = new Insurance(validityPeriod, costPolice, numberPolice);
-        return insurance;
+        if (!numberPolice.matches("\\d{9}")) {
+            System.out.println("Номер полиса некорректный, должно быть 9 цифр");
+            numberPolice = (numberPolice+"недействительный");
+        } else {
+            return new Insurance(validityPeriod, costPolice, numberPolice);
+        }
+        return null;
     }
 
-    @AllArgsConstructor
     private class Insurance {
         LocalDate validityPeriod;
         int costPolice;
         String numberPolice;
+
+        public Insurance(LocalDate validityPeriod, int costPolice, String numberPolice) {
+
+            this.validityPeriod = validityPeriod;
+            this.costPolice = costPolice;
+            this.numberPolice = numberPolice;
+        }
+
+        public LocalDate getValidityPeriod() {
+            return validityPeriod;
+        }
+
+        public int getCostPolice() {
+            return costPolice;
+        }
+
+        public String getNumberPolice() {
+            return numberPolice;
+        }
+
+        public LocalDate validityPeriod() {
+            return validityPeriod;
+        }
     }
+
+
+
 }
